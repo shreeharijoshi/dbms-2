@@ -2,7 +2,6 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db
-from backend.middleware.authorization import require_roles
 from backend.schemas.membership_views import (
     SubscriptionDeleteResponse,
     SubscriptionListResponse,
@@ -17,7 +16,6 @@ from backend.subscriptions import controller
 router = APIRouter(
     prefix="/subscriptions",
     tags=["subscriptions"],
-    dependencies=[Depends(require_roles("Admin"))],
 )
 
 

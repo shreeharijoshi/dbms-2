@@ -32,10 +32,11 @@ def _dict(row):
     return dict(row._mapping) if row else None
 
 
-def _trainer_id(user):
-    if not user.trainer_employee_id:
-        raise HTTPException(status_code=403, detail="This trainer account is not linked to a trainer record")
-    return user.trainer_employee_id
+def _trainer_id(trainer_id: str):
+    trainer_id = trainer_id.strip()
+    if not trainer_id:
+        raise HTTPException(status_code=422, detail="Select a trainer record")
+    return trainer_id
 
 
 def _profile(db: Session, employee_id: str):
@@ -62,21 +63,21 @@ def _list_members(db: Session, trainer_id: str, *, search=None, skip=0, limit=10
     return {"items": [_dict(row) for row in rows], "total": total, "skip": skip, "limit": limit}
 
 
-def overview(db: Session, user):
-    trainer_id = _trainer_id(user)
+def overview(db: Session, trainer_id: str):
+    trainer_id = _trainer_id(trainer_id)
     trainer = _profile(db, trainer_id)
     member_result = _list_members(db, trainer_id, limit=5)
     return {"trainer": trainer, "assigned_member_count": member_result["total"], "members": member_result["items"]}
 
 
-def list_members(db: Session, user, search, skip, limit):
-    trainer_id = _trainer_id(user)
+def list_members(db: Session, trainer_id: str, search, skip, limit):
+    trainer_id = _trainer_id(trainer_id)
     _profile(db, trainer_id)
     return _list_members(db, trainer_id, search=search, skip=skip, limit=limit)
 
 
-def get_member(db: Session, user, member_id: str):
-    trainer_id = _trainer_id(user)
+def get_member(db: Session, trainer_id: str, member_id: str):
+    trainer_id = _trainer_id(trainer_id)
     row = db.execute(text(MEMBER_SELECT + " WHERE m.member_id = :member_id AND m.PT = :trainer_id"), {"member_id": member_id, "trainer_id": trainer_id}).first()
     if not row:
         # Do not reveal whether a different trainer's member ID exists.
@@ -84,5 +85,10 @@ def get_member(db: Session, user, member_id: str):
     return _dict(row)
 
 
-def profile(db: Session, user):
-    return _profile(db, _trainer_id(user))
+def profile(db: Session, trainer_id: str):
+    return _profile(db, _trainer_id(trainer_id))
+
+
+def options(db: Session):
+    rows = db.execute(text("SELECT employee_id, trainer_name FROM gym_trainers ORDER BY trainer_name, employee_id")).mappings().all()
+    return [dict(row) for row in rows]

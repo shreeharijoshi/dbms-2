@@ -4,13 +4,12 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db
-from backend.middleware.authorization import require_roles
 from backend.payments import controller
 from backend.schemas.payment_views import PaymentListResponse, PaymentOptionsResponse, PaymentView
 from backend.schemas.payments import PaymentCreate
 
 
-router = APIRouter(prefix="/payments", tags=["payments"], dependencies=[Depends(require_roles("Admin"))])
+router = APIRouter(prefix="/payments", tags=["payments"])
 
 
 @router.get("/options", response_model=PaymentOptionsResponse)

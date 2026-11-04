@@ -2,13 +2,12 @@ from fastapi import APIRouter, Depends, Query, status
 from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db
-from backend.middleware.authorization import require_roles
 from backend.miscellaneous_employees import controller
 from backend.schemas.miscellaneous_employee_views import EmployeeDeleteResponse, EmployeeFilters, MiscellaneousEmployeeListResponse, MiscellaneousEmployeeView
 from backend.schemas.miscellaneous_employees import MiscellaneousEmployeeCreate, MiscellaneousEmployeeUpdate
 
 
-router = APIRouter(prefix="/miscellaneous-employees", tags=["miscellaneous employees"], dependencies=[Depends(require_roles("Admin"))])
+router = APIRouter(prefix="/miscellaneous-employees", tags=["miscellaneous employees"])
 
 
 @router.get("/filters", response_model=EmployeeFilters)

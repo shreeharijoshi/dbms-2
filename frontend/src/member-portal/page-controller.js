@@ -7,6 +7,7 @@ let paymentSkip = 0;
 let lastPayment;
 let profileCache;
 let activeRequest = 0;
+let selectedMemberId = "";
 
 function modalRoot() { let root = document.querySelector("#member-portal-dialog-root"); if (!root) { root = document.createElement("div"); root.id = "member-portal-dialog-root"; document.body.append(root); } return root; }
 
@@ -17,20 +18,26 @@ async function loadPayments(skip = 0) {
   paymentSkip = skip;
   root.innerHTML = '<div class="member-loading"><span class="member-spinner"></span>Loading your payments…</div>';
   try {
-    const data = await getMemberPayments({ skip, limit: 100 });
+    const data = await getMemberPayments(selectedMemberId, { skip, limit: 100 });
     if (version === activeRequest && root.isConnected) root.outerHTML = memberPaymentsContent(data);
   } catch (error) {
     if (version === activeRequest && root.isConnected) root.innerHTML = `<div class="member-state member-error"><strong>Unable to load payment history</strong><p>${escapeHtml(error.message)}</p><button class="member-button member-button-muted" data-action="retry-own-payments">Try again</button></div>`;
   }
 }
 
-export async function mountMemberPortalPage({ page } = {}) {
+export async function mountMemberPortalPage({ page, memberId = selectedMemberId } = {}) {
+  selectedMemberId = memberId;
   const version = ++activeRequest;
+  if (!selectedMemberId) {
+    const root = document.querySelector("#member-dashboard-page, #member-profile-page, #member-membership-page, #member-payments-page, #member-trainer-page");
+    if (root) root.innerHTML = '<div class="member-state"><strong>Choose a member record</strong><p>Select a member from the workspace menu above to view this dashboard.</p></div>';
+    return;
+  }
   if (page === "dashboard") {
     const root = document.querySelector("#member-dashboard-page");
     if (!root) return;
     try {
-      const data = await getMemberOverview();
+      const data = await getMemberOverview(selectedMemberId);
       if (version === activeRequest && root.isConnected) root.outerHTML = memberDashboardContent(data);
     } catch (error) {
       if (version === activeRequest && root.isConnected) root.innerHTML = `<div class="member-state member-error"><strong>Unable to load your dashboard</strong><p>${escapeHtml(error.message)}</p><button class="member-button member-button-muted" data-action="retry-member-dashboard">Try again</button></div>`;
@@ -39,7 +46,7 @@ export async function mountMemberPortalPage({ page } = {}) {
     const root = document.querySelector("#member-profile-page");
     if (!root) return;
     try {
-      profileCache = await getMemberProfile();
+      profileCache = await getMemberProfile(selectedMemberId);
       if (version === activeRequest && root.isConnected) root.outerHTML = memberProfileContent(profileCache);
     } catch (error) {
       if (version === activeRequest && root.isConnected) root.innerHTML = `<div class="member-state member-error"><strong>Unable to load your profile</strong><p>${escapeHtml(error.message)}</p><button class="member-button member-button-muted" data-action="retry-member-profile">Try again</button></div>`;
@@ -48,7 +55,7 @@ export async function mountMemberPortalPage({ page } = {}) {
     const root = document.querySelector("#member-membership-page");
     if (!root) return;
     try {
-      const data = await getMemberMemberships();
+      const data = await getMemberMemberships(selectedMemberId);
       if (version === activeRequest && root.isConnected) root.outerHTML = memberMembershipContent(data);
     } catch (error) {
       if (version === activeRequest && root.isConnected) root.innerHTML = `<div class="member-state member-error"><strong>Unable to load your membership</strong><p>${escapeHtml(error.message)}</p><button class="member-button member-button-muted" data-action="retry-member-membership">Try again</button></div>`;
@@ -59,7 +66,7 @@ export async function mountMemberPortalPage({ page } = {}) {
     const root = document.querySelector("#member-trainer-page");
     if (!root) return;
     try {
-      const trainer = await getAssignedTrainer();
+      const trainer = await getAssignedTrainer(selectedMemberId);
       if (version === activeRequest && root.isConnected) root.outerHTML = memberTrainerContent(trainer);
     } catch (error) {
       if (version === activeRequest && root.isConnected) root.innerHTML = `<div class="member-state member-error"><strong>Unable to load your trainer</strong><p>${escapeHtml(error.message)}</p><button class="member-button member-button-muted" data-action="retry-member-trainer">Try again</button></div>`;
@@ -73,7 +80,7 @@ export async function handleMemberPortalClick(event) {
   const action = control.dataset.action;
   if (action === "edit-own-contact") {
     try {
-      if (!profileCache) profileCache = await getMemberProfile();
+      if (!profileCache) profileCache = await getMemberProfile(selectedMemberId);
       modalRoot().innerHTML = contactForm(profileCache.contact);
       modalRoot().querySelector('[name="contact"]')?.focus();
     } catch (error) { window.alert(error.message); }
@@ -81,7 +88,7 @@ export async function handleMemberPortalClick(event) {
   if (action === "close-member-portal-modal" && (control === event.target || control.classList.contains("member-modal-close"))) modalRoot().replaceChildren();
   if (action === "view-own-payment") {
     control.disabled = true;
-    try { lastPayment = await getMemberPayment(control.dataset.paymentId); modalRoot().innerHTML = memberPaymentDetails(lastPayment); }
+    try { lastPayment = await getMemberPayment(selectedMemberId, control.dataset.paymentId); modalRoot().innerHTML = memberPaymentDetails(lastPayment); }
     catch (error) { window.alert(error.message); }
     finally { control.disabled = false; }
   }
@@ -105,7 +112,7 @@ export async function handleMemberPortalSubmit(event) {
   const feedback = form.querySelector(".member-form-feedback");
   submit.disabled = true; submit.querySelector("span").textContent = "Saving…"; feedback.textContent = "";
   try {
-    profileCache = await updateMemberContact(contact);
+    profileCache = await updateMemberContact(selectedMemberId, contact);
     modalRoot().replaceChildren();
     const page = document.querySelector("#member-profile-page");
     if (page) page.outerHTML = memberProfileContent(profileCache);

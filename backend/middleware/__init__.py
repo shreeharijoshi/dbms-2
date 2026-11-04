@@ -1,1 +1,1 @@
-"""Authentication and authorization middleware helpers."""
+"""Shared request middleware."""

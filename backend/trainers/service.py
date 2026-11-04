@@ -143,18 +143,12 @@ def delete_trainer(db: Session, employee_id: str):
                 text("SELECT COUNT(*) FROM expenses WHERE trainer_id = :employee_id"),
                 {"employee_id": employee_id},
             ).scalar_one()
-            accounts = db.execute(
-                text("SELECT COUNT(*) FROM auth_accounts WHERE trainer_employee_id = :employee_id"),
-                {"employee_id": employee_id},
-            ).scalar_one()
-            if members or expenses or accounts:
+            if members or expenses:
                 reasons = []
                 if members:
                     reasons.append("assigned members")
                 if expenses:
                     reasons.append("expense records")
-                if accounts:
-                    reasons.append("a trainer login account")
                 return True, "This trainer still has " + ", ".join(reasons) + " and cannot be deleted."
             db.execute(text("DELETE FROM gym_trainers WHERE employee_id = :employee_id"), {"employee_id": employee_id})
         return True, None

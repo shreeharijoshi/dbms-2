@@ -58,10 +58,6 @@ a { color: inherit; text-decoration: none; }
 .breadcrumbs strong { color: #354052; font-size: 11px; font-weight: 600; }
 .crumb-divider { color: #c5cad1; }
 .topbar-actions { display: flex; align-items: center; gap: 14px; }
-.workspace-role { padding: 7px 9px; border: 1px solid #f1e2da; border-radius: 7px; color: #bb6342; background: #fff8f4; font-size: 9px; font-weight: 600; white-space: nowrap; }
-.logout-button { display: inline-flex; height: 34px; align-items: center; gap: 7px; padding: 0 10px; border: 1px solid #e8ebef; border-radius: 8px; color: #687483; background: white; font-size: 10px; font-weight: 600; cursor: pointer; }
-.logout-button:hover { border-color: #f1c7b6; color: #bd5d3b; background: #fff9f6; }
-.logout-button .icon { width: 15px; height: 15px; }
 .role-switch { position: relative; display: flex; align-items: center; }
 .role-switch select { max-width: 155px; appearance: none; padding: 9px 27px 9px 11px; border: 1px solid #e7eaf0; border-radius: 8px; outline: 0; color: #4b5666; background: white; font-size: 10px; font-weight: 600; cursor: pointer; }
 .role-switch select:focus { border-color: #f5a083; box-shadow: 0 0 0 3px #f4774514; }
@@ -171,16 +167,17 @@ a { color: inherit; text-decoration: none; }
   .search-toggle, .topbar-divider, .user-label { display: none; }
   .topbar-user { padding-left: 0; }
   .role-switch select { max-width: 130px; padding-top: 8px; padding-bottom: 8px; }
-  .workspace-role { padding: 7px; font-size: 8px; }
-  .logout-button { width: 34px; justify-content: center; padding: 0; }
-  .logout-button span { display: none; }
   .main-content { padding: 22px 20px 38px; }
   .mobile-header-spacer { display: none; }
 }
 @media (max-width: 560px) {
   .topbar { padding: 0 13px; }
   .topbar-actions { gap: 5px; }
-  .role-switch select { max-width: 115px; padding-right: 23px; padding-left: 8px; font-size: 9px; }
+  .breadcrumbs, .topbar-user { display: none; }
+  .menu-toggle { position: absolute; left: 12px; }
+  .topbar-actions { margin-left: 38px; }
+  .role-switch select { max-width: 108px; padding-right: 22px; padding-left: 8px; font-size: 8px; }
+  .record-switch select { max-width: 132px; }
   .select-caret { right: 7px; }
   .notification-button { display: none; }
   .main-content { padding: 17px 14px 30px; }

@@ -14,7 +14,8 @@ def _call(db, operation, *args):
         raise HTTPException(status_code=503, detail="Trainer workspace is temporarily unavailable") from None
 
 
-def overview(db, user): return _call(db, service.overview, user)
-def list_members(db, user, search, skip, limit): return _call(db, service.list_members, user, search, skip, limit)
-def get_member(db, user, member_id): return _call(db, service.get_member, user, member_id)
-def profile(db, user): return _call(db, service.profile, user)
+def overview(db, trainer_id): return _call(db, service.overview, trainer_id)
+def list_members(db, trainer_id, search, skip, limit): return _call(db, service.list_members, trainer_id, search, skip, limit)
+def get_member(db, trainer_id, member_id): return _call(db, service.get_member, trainer_id, member_id)
+def profile(db, trainer_id): return _call(db, service.profile, trainer_id)
+def options(db): return _call(db, service.options)

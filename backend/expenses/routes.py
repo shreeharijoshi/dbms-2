@@ -5,12 +5,11 @@ from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db
 from backend.expenses import controller
-from backend.middleware.authorization import require_roles
 from backend.schemas.expense_views import ExpenseDeleteResponse, ExpenseListResponse, ExpenseOptionsResponse, ExpenseView
 from backend.schemas.expenses import ExpenseCreate, ExpenseUpdate
 
 
-router = APIRouter(prefix="/expenses", tags=["expenses"], dependencies=[Depends(require_roles("Admin"))])
+router = APIRouter(prefix="/expenses", tags=["expenses"])
 
 
 @router.get("/options", response_model=ExpenseOptionsResponse)

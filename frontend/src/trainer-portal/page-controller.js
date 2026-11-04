@@ -6,6 +6,7 @@ let page = 0;
 let total = 0;
 let timer;
 let requestVersion = 0;
+let selectedTrainerId = "";
 
 async function refreshMembers() {
   const root = document.querySelector("#trainer-members-page");
@@ -15,7 +16,7 @@ async function refreshMembers() {
   const count = root.querySelector("#trainer-member-count");
   results.innerHTML = '<div class="member-loading"><span class="member-spinner"></span>Loading members…</div>';
   try {
-    const response = await getTrainerMembers({ search: root.querySelector("#trainer-member-search").value.trim(), skip: page * 100, limit: 100 });
+    const response = await getTrainerMembers(selectedTrainerId, { search: root.querySelector("#trainer-member-search").value.trim(), skip: page * 100, limit: 100 });
     if (version !== requestVersion || !root.isConnected) return;
     total = response.total;
     count.textContent = `${total} assigned ${total === 1 ? "member" : "members"}`;
@@ -28,13 +29,19 @@ async function refreshMembers() {
   }
 }
 
-export async function mountTrainerPortalPage({ page: currentPage, trainerMemberId } = {}) {
+export async function mountTrainerPortalPage({ page: currentPage, trainerMemberId, trainerId = selectedTrainerId } = {}) {
+  selectedTrainerId = trainerId;
+  if (!selectedTrainerId) {
+    const root = document.querySelector("#trainer-dashboard-page, #trainer-profile-page, #trainer-members-page, #trainer-member-profile");
+    if (root) root.innerHTML = '<div class="member-state"><strong>Choose a trainer record</strong><p>Select a trainer from the workspace menu above to view this dashboard.</p></div>';
+    return;
+  }
   if (currentPage === "dashboard") {
     const root = document.querySelector("#trainer-dashboard-page");
     if (!root) return;
     const version = ++requestVersion;
     try {
-      const data = await getTrainerOverview();
+      const data = await getTrainerOverview(selectedTrainerId);
       if (version === requestVersion && root.isConnected) root.outerHTML = trainerDashboardContent(data);
     } catch (error) {
       if (version === requestVersion && root.isConnected) root.innerHTML = `<div class="member-state member-error"><strong>Unable to load your trainer dashboard</strong><p>${escapeHtml(error.message)}</p><button class="member-button member-button-muted" data-action="retry-trainer-dashboard">Try again</button></div>`;
@@ -46,7 +53,7 @@ export async function mountTrainerPortalPage({ page: currentPage, trainerMemberI
     if (!root) return;
     const version = ++requestVersion;
     try {
-      const profile = await getTrainerPortalProfile();
+      const profile = await getTrainerPortalProfile(selectedTrainerId);
       if (version === requestVersion && root.isConnected) root.outerHTML = trainerProfileContent(profile);
     } catch (error) {
       if (version === requestVersion && root.isConnected) root.innerHTML = `<div class="member-state member-error"><strong>Unable to load your profile</strong><p>${escapeHtml(error.message)}</p><button class="member-button member-button-muted" data-action="retry-trainer-profile">Try again</button></div>`;
@@ -58,7 +65,7 @@ export async function mountTrainerPortalPage({ page: currentPage, trainerMemberI
     if (!root) return;
     const version = ++requestVersion;
     try {
-      const member = await getTrainerMember(trainerMemberId);
+      const member = await getTrainerMember(selectedTrainerId, trainerMemberId);
       if (version === requestVersion && root.isConnected) root.outerHTML = trainerMemberProfile(member);
     } catch (error) {
       if (version === requestVersion && root.isConnected) root.innerHTML = `<a class="member-back-link" href="#/trainer/my-members">←&nbsp; Back to my members</a><div class="member-state member-error"><strong>Unable to load this assigned member</strong><p>${escapeHtml(error.message)}</p></div>`;

@@ -5,12 +5,10 @@ from sqlalchemy.orm import Session
 
 from backend.analytics import service
 from backend.database.connection import get_db
-from backend.middleware.authorization import require_roles
 
 router = APIRouter(
     prefix="/admin/analytics",
     tags=["admin analytics"],
-    dependencies=[Depends(require_roles("Admin"))],
 )
 
 

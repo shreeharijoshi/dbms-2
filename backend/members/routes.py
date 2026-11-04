@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db
 from backend.members import controller
-from backend.middleware.authorization import require_roles
 from backend.schemas.member_views import (
     MemberDeleteResponse,
     MemberFiltersResponse,
@@ -16,7 +15,6 @@ from backend.schemas.members import MemberCreate, MemberUpdate
 router = APIRouter(
     prefix="/members",
     tags=["members"],
-    dependencies=[Depends(require_roles("Admin"))],
 )
 
 

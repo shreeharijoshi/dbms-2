@@ -42,8 +42,9 @@ export function routeFor(role, page) {
 }
 
 export function parseRoute(hash = window.location.hash) {
-  if (!hash || hash === "#") return { name: "login" };
-  if (hash.replace(/\/$/, "") === "#/login") return { name: "login" };
+  if (!hash || hash === "#") {
+    return { name: "app", role: "admin", page: "dashboard", memberId: null, trainerId: null, trainerMemberId: null, subscriptionMemberId: null, paymentMemberId: null, enrollMemberId: null };
+  }
   const parts = hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   const role = roles[parts[0]] ? parts[0] : "admin";
   const page = parts[1] || "dashboard";

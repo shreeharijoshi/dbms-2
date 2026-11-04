@@ -1,6 +1,5 @@
-import { clearLoginFieldError, signOut, submitLoginForm } from "./auth/login-controller.js";
 import { renderRoute } from "./routes/router.js";
-import { icon } from "./components/icons.js";
+import { saveWorkspaceRecord } from "./workspace/selection.js";
 import { closeMemberDialogOnEscape, handleMemberChange, handleMemberClick, handleMemberInput, handleMemberSubmit } from "./members/page-controller.js";
 import { closeTrainerDialogOnEscape, handleTrainerChange, handleTrainerClick, handleTrainerInput, handleTrainerSubmit } from "./trainers/page-controller.js";
 import { closePlanDialogOnEscape, handlePlanChange, handlePlanClick, handlePlanInput, handlePlanSubmit } from "./membership-plans/page-controller.js";
@@ -30,17 +29,6 @@ document.addEventListener("click", (event) => {
   const action = control?.dataset.action;
   if (action === "open-menu") document.body.classList.add("menu-open");
   if (action === "close-menu") document.body.classList.remove("menu-open");
-  if (action === "logout") signOut();
-  if (action === "toggle-password") {
-    const password = document.querySelector("#login-password");
-    if (password) {
-      const showing = password.type === "password";
-      password.type = showing ? "text" : "password";
-      control.setAttribute("aria-label", showing ? "Hide password" : "Show password");
-      control.setAttribute("aria-pressed", String(showing));
-      control.innerHTML = icon(showing ? "eye-off" : "eye");
-    }
-  }
   if (event.target.closest(".side-link")) document.body.classList.remove("menu-open");
 });
 
@@ -67,12 +55,18 @@ document.addEventListener("input", (event) => {
   handleInventoryInput(event);
   handleEmployeeInput(event);
   handleTrainerPortalInput(event);
-  if (event.target.matches("#login-email, #login-password")) {
-    clearLoginFieldError(event.target);
-  }
 });
 
 document.addEventListener("change", (event) => {
+  if (event.target.matches("#workspace-role-select")) {
+    window.location.hash = `#/${event.target.value}/dashboard`;
+    return;
+  }
+  if (event.target.matches("#workspace-record-select")) {
+    saveWorkspaceRecord(event.target.dataset.workspaceRole, event.target.value);
+    renderRoute();
+    return;
+  }
   handleMemberChange(event);
   handleTrainerChange(event);
   handlePlanChange(event);
@@ -84,11 +78,6 @@ document.addEventListener("change", (event) => {
 });
 
 document.addEventListener("submit", (event) => {
-  if (event.target.matches("#login-form")) {
-    event.preventDefault();
-    submitLoginForm(event.target);
-    return;
-  }
   handleMemberSubmit(event);
   handleTrainerSubmit(event);
   handlePlanSubmit(event);

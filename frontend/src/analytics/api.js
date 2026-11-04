@@ -1,11 +1,7 @@
-import { getAccessToken } from "../auth/store.js";
-
 const API_BASE = (window.GYM_API_BASE_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
 
 async function request(path) {
-  const response = await fetch(`${API_BASE}${path}`, {
-    headers: { Authorization: `Bearer ${getAccessToken()}` },
-  });
+  const response = await fetch(`${API_BASE}${path}`);
   const payload = await response.json().catch(() => ({}));
   if (!response.ok) throw new Error(payload.detail || "Analytics request failed");
   return payload;

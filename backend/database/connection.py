@@ -1,11 +1,13 @@
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, URL
 from sqlalchemy.orm import sessionmaker
 
 # Load environment variables
-load_dotenv()
+ENV_FILE = Path(__file__).resolve().parents[1] / ".env"
+load_dotenv(dotenv_path=ENV_FILE)
 
 # Database configuration
 DB_HOST = os.getenv("DB_HOST", "localhost")

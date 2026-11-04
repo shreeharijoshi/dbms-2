@@ -3,7 +3,6 @@ from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db
 from backend.membership_plans import controller
-from backend.middleware.authorization import require_roles
 from backend.schemas.membership_plans import MembershipPlanCreate, MembershipPlanUpdate
 from backend.schemas.membership_views import (
     MembershipPlanFilters,
@@ -16,7 +15,6 @@ from backend.schemas.membership_views import (
 router = APIRouter(
     prefix="/membership-plans",
     tags=["membership plans"],
-    dependencies=[Depends(require_roles("Admin"))],
 )
 
 

@@ -3,12 +3,11 @@ from sqlalchemy.orm import Session
 
 from backend.database.connection import get_db
 from backend.inventory import controller
-from backend.middleware.authorization import require_roles
 from backend.schemas.inventory import InventoryCreate, InventoryUpdate
 from backend.schemas.inventory_views import InventoryDeleteResponse, InventoryFilters, InventoryListResponse, InventoryQuantityUpdate, InventorySummary, InventoryView
 
 
-router = APIRouter(prefix="/inventory", tags=["inventory"], dependencies=[Depends(require_roles("Admin"))])
+router = APIRouter(prefix="/inventory", tags=["inventory"])
 
 
 @router.get("/summary", response_model=InventorySummary)

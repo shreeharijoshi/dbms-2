@@ -9,12 +9,11 @@ export function topbar(role, page) {
       <button class="icon-button menu-toggle" data-action="open-menu" aria-label="Open navigation">${icon("menu")}</button>
       <div class="breadcrumbs"><span>Workspace</span><span class="crumb-divider">/</span><strong>${title}</strong></div>
       <div class="topbar-actions">
-        <span class="workspace-role">${config.label} workspace</span>
-        <span class="topbar-divider"></span>
+        <label class="role-switch"><span class="sr-only">Choose workspace</span><select id="workspace-role-select" aria-label="Choose workspace">${Object.entries(roles).map(([key, value]) => `<option value="${key}" ${key === role ? "selected" : ""}>${value.label} workspace</option>`).join("")}</select><span class="select-caret" aria-hidden="true">⌄</span></label>
+        ${role === "trainer" || role === "member" ? `<label class="role-switch record-switch"><span class="sr-only">Choose ${role} record</span><select id="workspace-record-select" data-workspace-role="${role}" aria-label="Choose ${role} record"><option value="">Choose ${role} record</option></select><span class="select-caret" aria-hidden="true">⌄</span></label>` : ""}
         <button class="icon-button search-toggle" aria-label="Search" title="Search is a layout preview">${icon("search")}</button>
         <button class="icon-button notification-button" aria-label="Notifications" title="Notifications">${icon("bell")}<span class="notification-dot"></span></button>
-        <div class="topbar-user"><span class="avatar">${role === "admin" ? "IC" : role === "trainer" ? "TR" : "MB"}</span><span class="user-label"><strong>${role === "admin" ? "IronCore" : role === "trainer" ? "Trainer" : "Member"}</strong><small>${config.label} account</small></span></div>
-        <button class="logout-button" data-action="logout">${icon("logout")}<span>Sign out</span></button>
+        <div class="topbar-user"><span class="avatar">${role === "admin" ? "IC" : role === "trainer" ? "TR" : "MB"}</span><span class="user-label"><strong>${config.label} workspace</strong><small>Public access</small></span></div>
       </div>
     </header>`;
 }
