@@ -1,0 +1,1 @@
+"""Admin trainer management module."""

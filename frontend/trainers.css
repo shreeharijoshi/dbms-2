@@ -1,0 +1,15 @@
+.trainer-filter-select { min-width: 155px; }
+.trainer-table { min-width: 1080px; }
+.trainer-table th, .trainer-table td { padding-right: 11px; padding-left: 11px; }
+.trainer-table th:first-child, .trainer-table td:first-child { padding-left: 18px; }
+.trainer-table td:nth-child(6), .trainer-table td:nth-child(7) { max-width: 190px; overflow: hidden; text-overflow: ellipsis; }
+.trainer-member-count { display: inline-flex; padding: 4px 8px; border: 1px solid #e9e6f7; border-radius: 20px; color: #786db2; background: #f7f5ff; font-size: 9px; font-weight: 650; }
+.trainer-detail-card { margin-bottom: 15px; }
+.trainer-assigned-card { padding-bottom: 0; }
+.trainer-assigned-card .member-detail-card-head { margin: 0 19px; }
+.assigned-members-table { min-width: 560px; }
+.assigned-members-empty { min-height: 200px; }
+@media (max-width: 560px) {
+  .trainer-filter-select { min-width: 0; }
+  .trainer-assigned-card .member-detail-card-head { margin-right: 14px; margin-left: 14px; }
+}
