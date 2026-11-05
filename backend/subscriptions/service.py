@@ -30,6 +30,23 @@ def _as_dict(row):
     return dict(row._mapping) if row else None
 
 
+def _sync_member_status(db: Session, member_id: str):
+    db.execute(
+        text("""
+            UPDATE members AS m
+            SET member_status = CASE WHEN EXISTS (
+                SELECT 1 FROM members_plans AS active_membership
+                WHERE active_membership.member_id = m.member_id
+                  AND LOWER(active_membership.membership_status) = 'active'
+                  AND (active_membership.start_date IS NULL OR active_membership.start_date <= CURRENT_DATE)
+                  AND (active_membership.end_date IS NULL OR active_membership.end_date >= CURRENT_DATE)
+            ) THEN 'Active' ELSE 'Inactive' END
+            WHERE m.member_id = :member_id
+        """),
+        {"member_id": member_id},
+    )
+
+
 def _add_months(start: date, months: int) -> date:
     month_index = start.month - 1 + months
     year = start.year + month_index // 12
@@ -167,6 +184,7 @@ def enroll_member(db: Session, request: SubscriptionEnrollRequest):
                 """),
                 {"membership_id": membership_id, "member_id": request.member_id.strip(), "plan_id": plan_id, "start_date": start, "end_date": end},
             )
+            _sync_member_status(db, request.member_id.strip())
         return get_subscription(db, membership_id)
     except IntegrityError:
         db.rollback()
@@ -222,6 +240,7 @@ def renew_subscription(db: Session, membership_id: str, request: SubscriptionRen
                 """),
                 {"membership_id": new_id, "member_id": member_id, "plan_id": plan_id, "start_date": start, "end_date": new_end},
             )
+            _sync_member_status(db, member_id)
         return get_subscription(db, new_id)
     except IntegrityError:
         db.rollback()
@@ -258,6 +277,7 @@ def update_subscription_status(db: Session, membership_id: str, request: Subscri
             text("UPDATE members_plans SET membership_status = :membership_status WHERE membership_id = :membership_id"),
             {"membership_status": new_status, "membership_id": membership_id},
         )
+        _sync_member_status(db, subscription["member_id"])
     return get_subscription(db, membership_id)
 
 
@@ -284,6 +304,7 @@ def delete_subscription(db: Session, membership_id: str):
             if payment_count:
                 return True, "This subscription has associated payment history and cannot be deleted."
             db.execute(text("DELETE FROM members_plans WHERE membership_id = :membership_id"), {"membership_id": membership_id})
+            _sync_member_status(db, row.member_id)
         return True, None
     except IntegrityError:
         db.rollback()

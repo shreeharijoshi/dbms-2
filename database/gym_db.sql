@@ -51,7 +51,7 @@ CREATE TABLE IF NOT EXISTS members (
     bmi DOUBLE GENERATED ALWAYS AS
         (ROUND(weight / POWER(height / 100, 2), 2)) STORED,
     PT VARCHAR(20),
-    member_status VARCHAR(10) NOT NULL DEFAULT 'Active',
+    member_status VARCHAR(10) NOT NULL DEFAULT 'Inactive',
     CONSTRAINT fk_members_trainer
         FOREIGN KEY (PT)
         REFERENCES gym_trainers(employee_id)
@@ -406,6 +406,16 @@ VALUES
 ('EXP202612', 'Maintenance', NULL, NULL, 'INV110', NULL, 3000, NULL, '2026-06-20', 'Cash', 'Storage rack repair'),
 ('EXP202613', 'Maintenance', NULL, NULL, 'INV105', NULL, 4500, NULL, '2026-07-05', 'Card', 'Dumbbell handle repair'),
 ('EXP202614', 'Maintenance', NULL, NULL, 'INV108', NULL, 2200, NULL, '2026-07-18', 'UPI', 'Ceiling fan servicing');
+
+UPDATE members AS m
+SET member_status = CASE WHEN EXISTS (
+    SELECT 1
+    FROM members_plans AS active_membership
+    WHERE active_membership.member_id = m.member_id
+      AND LOWER(active_membership.membership_status) = 'active'
+      AND (active_membership.start_date IS NULL OR active_membership.start_date <= CURRENT_DATE)
+      AND (active_membership.end_date IS NULL OR active_membership.end_date >= CURRENT_DATE)
+) THEN 'Active' ELSE 'Inactive' END;
 
 USE gym_db;
 

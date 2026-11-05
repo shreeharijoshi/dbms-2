@@ -23,8 +23,18 @@ def dashboard(db: Session, months: int):
     threshold = _threshold()
     summary = _one(db, """
         SELECT (SELECT COUNT(*) FROM members) AS total_members,
-               (SELECT COUNT(*) FROM members WHERE LOWER(member_status) = 'active') AS active_members,
-               (SELECT COUNT(*) FROM members WHERE LOWER(member_status) <> 'active' OR member_status IS NULL) AS inactive_members,
+               (SELECT COUNT(*) FROM members AS m WHERE EXISTS (
+                   SELECT 1 FROM members_plans AS ms
+                   WHERE ms.member_id = m.member_id AND LOWER(ms.membership_status) = 'active'
+                     AND (ms.start_date IS NULL OR ms.start_date <= CURRENT_DATE)
+                     AND (ms.end_date IS NULL OR ms.end_date >= CURRENT_DATE)
+               )) AS active_members,
+               (SELECT COUNT(*) FROM members AS m WHERE NOT EXISTS (
+                   SELECT 1 FROM members_plans AS ms
+                   WHERE ms.member_id = m.member_id AND LOWER(ms.membership_status) = 'active'
+                     AND (ms.start_date IS NULL OR ms.start_date <= CURRENT_DATE)
+                     AND (ms.end_date IS NULL OR ms.end_date >= CURRENT_DATE)
+               )) AS inactive_members,
                (SELECT COUNT(*) FROM gym_trainers) AS total_trainers,
                (SELECT COUNT(*) FROM membership_plans) AS total_plans,
                (SELECT COALESCE(SUM(amount), 0) FROM payments) AS total_revenue,
@@ -100,7 +110,7 @@ def dashboard(db: Session, months: int):
             "revenue": "Sum of recorded payments.amount, counted once per payment.",
             "expenses": "Sum of expenses.amount plus expenses.bonus, counted once per expense.",
             "profit": "Recorded payments less recorded expenses including bonuses; inventory cost is excluded.",
-            "active_members": "members.member_status equals Active.",
+            "active_members": "Members with a current subscription whose membership_status is Active; start and end dates are respected.",
         },
     }
 

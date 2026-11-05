@@ -61,9 +61,16 @@ def list_filter_options(db: Session):
 def list_assigned_members(db: Session, employee_id: str):
     rows = db.execute(
         text("""
-            SELECT member_id, member_name, gender, contact, member_status
-            FROM members WHERE PT = :employee_id
-            ORDER BY member_name, member_id
+            SELECT m.member_id, m.member_name, m.gender, m.contact,
+                   CASE WHEN EXISTS (
+                     SELECT 1 FROM members_plans AS active_membership
+                     WHERE active_membership.member_id = m.member_id
+                       AND LOWER(active_membership.membership_status) = 'active'
+                       AND (active_membership.start_date IS NULL OR active_membership.start_date <= CURRENT_DATE)
+                       AND (active_membership.end_date IS NULL OR active_membership.end_date >= CURRENT_DATE)
+                   ) THEN 'Active' ELSE 'Inactive' END AS member_status
+            FROM members AS m WHERE m.PT = :employee_id
+            ORDER BY m.member_name, m.member_id
         """),
         {"employee_id": employee_id},
     ).all()

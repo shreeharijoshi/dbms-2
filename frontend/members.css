@@ -85,3 +85,6 @@
 .member-delete-copy { margin: 0; color: #7c8795; font-size: 11px; line-height: 1.7; }
 @media (max-width: 900px) { .member-toolbar { flex-wrap: wrap; } .member-search { flex-basis: 100%; } .member-detail-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
 @media (max-width: 560px) { .members-heading { align-items: flex-start; flex-direction: column; margin-bottom: 17px; } .members-heading .member-button { width: 100%; } .member-toolbar { align-items: stretch; gap: 9px; padding: 12px; } .member-filter { flex: 1; min-width: 0; } .member-search kbd { display: none; } .member-list-meta { padding: 0 12px; } .member-table th:first-child, .member-table td:first-child { padding-left: 12px; } .member-detail-heading { align-items: flex-start; flex-wrap: wrap; } .member-detail-heading > div:nth-child(2) { flex: 1; min-width: 150px; } .member-detail-actions { width: 100%; margin: 5px 0 0; } .member-detail-actions .member-button { flex: 1; } .member-detail-grid { gap: 18px 10px; } .member-modal { padding: 18px 15px; } .member-form-grid { grid-template-columns: 1fr; gap: 11px; } }
+
+.member-status-pill.is-active { border-color: #cdebdc; color: #378965; background: #effaf4; }
+.member-status-pill.is-inactive { border-color: #f0d4ce; color: #a34e42; background: #fff3f0; }

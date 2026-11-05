@@ -5,7 +5,14 @@ from sqlalchemy.orm import Session
 
 MEMBER_SELECT = """
     SELECT m.member_id, m.member_name, m.gender, m.contact, m.dob,
-           m.height, m.weight, m.bmi, m.member_status,
+           m.height, m.weight, m.bmi,
+           CASE WHEN EXISTS (
+             SELECT 1 FROM members_plans AS active_membership
+             WHERE active_membership.member_id = m.member_id
+               AND LOWER(active_membership.membership_status) = 'active'
+               AND (active_membership.start_date IS NULL OR active_membership.start_date <= CURRENT_DATE)
+               AND (active_membership.end_date IS NULL OR active_membership.end_date >= CURRENT_DATE)
+           ) THEN 'Active' ELSE 'Inactive' END AS member_status,
            mp.membership_id, mp.plan_id,
            mp.start_date AS membership_start_date,
            mp.end_date AS membership_end_date,

@@ -11,9 +11,8 @@ class MemberCreate(BaseModel):
     contact: str = Field(min_length=1, max_length=15)
     dob: date
     PT: str | None = Field(default=None, max_length=20)
-    member_status: str = Field(default="Active", max_length=10)
 
-    @field_validator("member_id", "member_name", "gender", "contact", "member_status")
+    @field_validator("member_id", "member_name", "gender", "contact")
     @classmethod
     def strip_required_text(cls, value: str) -> str:
         value = value.strip()
@@ -41,9 +40,8 @@ class MemberUpdate(BaseModel):
     contact: str | None = Field(default=None, min_length=1, max_length=15)
     dob: date | None = None
     PT: str | None = Field(default=None, max_length=20)
-    member_status: str | None = Field(default=None, max_length=10)
 
-    @field_validator("member_name", "gender", "contact", "member_status")
+    @field_validator("member_name", "gender", "contact")
     @classmethod
     def strip_optional_text(cls, value: str | None) -> str | None:
         if value is None:

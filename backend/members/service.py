@@ -8,7 +8,14 @@ from backend.schemas.members import MemberCreate, MemberUpdate
 MEMBER_SELECT = """
     SELECT m.member_id, m.member_name, m.gender, m.contact, m.dob,
            m.height, m.weight, m.bmi, m.PT AS trainer_id,
-           t.trainer_name, m.member_status
+           t.trainer_name,
+           CASE WHEN EXISTS (
+             SELECT 1 FROM members_plans AS active_membership
+             WHERE active_membership.member_id = m.member_id
+               AND LOWER(active_membership.membership_status) = 'active'
+               AND (active_membership.start_date IS NULL OR active_membership.start_date <= CURRENT_DATE)
+               AND (active_membership.end_date IS NULL OR active_membership.end_date >= CURRENT_DATE)
+           ) THEN 'Active' ELSE 'Inactive' END AS member_status
     FROM members AS m
     LEFT JOIN gym_trainers AS t ON t.employee_id = m.PT
 """
@@ -81,7 +88,7 @@ def create_member(db: Session, member: MemberCreate):
     db.execute(
         text("""
             INSERT INTO members (member_id, member_name, gender, height, weight, contact, dob, PT, member_status)
-            VALUES (:member_id, :member_name, :gender, :height, :weight, :contact, :dob, :PT, :member_status)
+            VALUES (:member_id, :member_name, :gender, :height, :weight, :contact, :dob, :PT, 'Inactive')
         """),
         data,
     )
@@ -102,7 +109,7 @@ def update_member(db: Session, member_id: str, changes: MemberUpdate):
     ).first()
     if not exists:
         return None
-    columns = {"member_name", "gender", "height", "weight", "contact", "dob", "PT", "member_status"}
+    columns = {"member_name", "gender", "height", "weight", "contact", "dob", "PT"}
     assignments = ", ".join(f"{column} = :{column}" for column in data if column in columns)
     data["member_id"] = member_id
     result = db.execute(
