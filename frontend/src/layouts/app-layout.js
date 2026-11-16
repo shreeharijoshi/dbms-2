@@ -4,19 +4,18 @@ import { roles } from "../navigation.js";
 import { adminDashboardPage } from "../pages/admin-dashboard.js";
 import { reportsPage } from "../pages/reports.js";
 import { membersPage } from "../pages/members.js";
-import { trainersPage } from "../pages/trainers.js";
+import { employeeManagementPage } from "../pages/employee-management.js";
 import { membershipPlansPage } from "../pages/membership-plans.js";
 import { subscriptionsPage } from "../pages/subscriptions.js";
 import { paymentsPage } from "../pages/payments.js";
 import { expensesPage } from "../pages/expenses.js";
 import { inventoryPage } from "../pages/inventory.js";
-import { employeesPage } from "../pages/employees.js";
 
 export function appLayout({ page, memberId, trainerId, subscriptionMemberId, enrollMemberId, paymentMemberId }) {
   const pages = {
     dashboard: () => adminDashboardPage(),
     members: () => membersPage(memberId),
-    trainers: () => trainersPage(trainerId),
+    employees: () => employeeManagementPage(trainerId),
     "membership-plans": () => membershipPlansPage(),
     subscriptions: () => subscriptionsPage({ mode: subscriptionMemberId ? "member" : "all", memberId: subscriptionMemberId }),
     "enroll-member": () => subscriptionsPage({ mode: "enroll", memberId: enrollMemberId }),
@@ -24,7 +23,6 @@ export function appLayout({ page, memberId, trainerId, subscriptionMemberId, enr
     payments: () => paymentsPage(paymentMemberId),
     expenses: () => expensesPage(),
     inventory: () => inventoryPage(),
-    employees: () => employeesPage(),
     reports: () => reportsPage(),
   };
   const content = (pages[page] || pages.dashboard)();

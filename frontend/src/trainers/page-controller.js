@@ -77,7 +77,7 @@ export async function mountTrainerPage() {
       root.outerHTML = trainerDetailsPage(trainer, members);
     } catch (error) {
       if (requestId !== activeLoad || !root.isConnected) return;
-      root.innerHTML = `<div class="member-state member-error"><strong>Unable to load this trainer</strong><p>${escapeHtml(error.message)}</p><a class="member-back-link" href="#/admin/trainers">←&nbsp; Back to trainers</a></div>`;
+      root.innerHTML = `<div class="member-state member-error"><strong>Unable to load this trainer</strong><p>${escapeHtml(error.message)}</p><a class="member-back-link" href="#/admin/employees">←&nbsp; Back to employees</a></div>`;
     }
     return;
   }
@@ -111,7 +111,7 @@ export function handleTrainerClick(event) {
     control.textContent = "Deleting…";
     deleteTrainer(control.dataset.employeeId).then(() => {
       modalRoot().innerHTML = "";
-      window.location.hash = "#/admin/trainers";
+      window.location.hash = "#/admin/employees";
     }).catch((error) => {
       control.disabled = false;
       control.textContent = "Delete trainer";
@@ -162,7 +162,7 @@ export async function handleTrainerSubmit(event) {
     if (form.dataset.employeeId) await updateTrainer(form.dataset.employeeId, data);
     else await createTrainer(data);
     modalRoot().innerHTML = "";
-    if (window.location.hash.startsWith("#/admin/trainers/")) window.location.hash = "#/admin/trainers";
+    if (window.location.hash.startsWith("#/admin/employees/trainers/")) window.location.hash = "#/admin/employees";
     else refreshList();
   } catch (error) {
     feedback.textContent = error.message;

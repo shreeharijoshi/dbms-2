@@ -1,6 +1,6 @@
 import { createEmployee, deleteEmployee, getEmployee, getEmployeeFilters, getEmployees, updateEmployee } from "./api.js";
 import { escapeHtml } from "../members/html.js";
-import { employeeForm, employeeTable } from "../pages/employees.js";
+import { employeeDetails, employeeForm, employeeTable } from "../pages/employees.js";
 
 let page = 0;
 let total = 0;
@@ -57,6 +57,12 @@ export async function handleEmployeeClick(event) {
   const action = control.dataset.action;
   if (action === "add-employee") modalRoot().innerHTML = employeeForm();
   if (action === "close-employee-modal" && (control === event.target || control.classList.contains("member-modal-close"))) modalRoot().replaceChildren();
+  if (action === "view-employee") {
+    control.disabled = true;
+    try { modalRoot().innerHTML = employeeDetails(await getEmployee(control.dataset.employeeId)); }
+    catch (error) { window.alert(error.message); }
+    finally { control.disabled = false; }
+  }
   if (action === "edit-employee") {
     control.disabled = true;
     try { modalRoot().innerHTML = employeeForm(await getEmployee(control.dataset.employeeId)); }

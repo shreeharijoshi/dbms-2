@@ -1,3 +1,7 @@
+.employee-management-page { display: grid; gap: 18px; }
+.employee-subsection .members-heading { margin: 0 0 15px; }
+.employee-subsection .members-heading h2 { margin: 7px 0 5px; color: #202a38; font-size: clamp(21px, 2.2vw, 25px); letter-spacing: -.5px; }
+.employee-detail-grid { margin-top: 10px; }
 .trainer-filter-select { min-width: 155px; }
 .trainer-table { min-width: 1080px; }
 .trainer-table th, .trainer-table td { padding-right: 11px; padding-left: 11px; }
