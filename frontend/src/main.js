@@ -1,4 +1,5 @@
 import { renderRoute } from "./routes/router.js";
+import { launchScreen } from "./components/launch-screen.js";
 import { saveWorkspaceRecord } from "./workspace/selection.js";
 import { closeMemberDialogOnEscape, handleMemberChange, handleMemberClick, handleMemberInput, handleMemberSubmit } from "./members/page-controller.js";
 import { closeTrainerDialogOnEscape, handleTrainerChange, handleTrainerClick, handleTrainerInput, handleTrainerSubmit } from "./trainers/page-controller.js";
@@ -11,8 +12,12 @@ import { closeEmployeeDialogOnEscape, handleEmployeeChange, handleEmployeeClick,
 import { handleTrainerPortalClick, handleTrainerPortalInput } from "./trainer-portal/page-controller.js";
 import { closeMemberPortalDialogOnEscape, handleMemberPortalClick, handleMemberPortalSubmit } from "./member-portal/page-controller.js";
 
-renderRoute();
-window.addEventListener("hashchange", renderRoute);
+const LAUNCH_DURATION_MS = 2400;
+document.querySelector("#app").innerHTML = launchScreen();
+window.setTimeout(() => {
+  renderRoute();
+  window.addEventListener("hashchange", renderRoute);
+}, LAUNCH_DURATION_MS);
 
 document.addEventListener("click", (event) => {
   handleMemberClick(event);

@@ -1,0 +1,17 @@
+.launch-screen { position: fixed; z-index: 1000; inset: 0; display: grid; overflow: hidden; place-items: center; color: #f5f7fa; background: radial-gradient(circle at 50% 45%, #202d40 0, #121b2a 46%, #0c1421 100%); }
+.launch-content { position: relative; z-index: 1; display: flex; width: min(90vw, 380px); align-items: center; flex-direction: column; text-align: center; animation: launch-appear .65s ease-out both; }
+.launch-mark { display: grid; width: 70px; height: 70px; place-items: center; border: 1px solid #ffa17c55; border-radius: 22px; color: #fff; background: linear-gradient(145deg, #ff9469, #dd6036); box-shadow: 0 14px 45px #f4774540; animation: launch-mark-pulse 1.8s ease-in-out infinite; }
+.launch-mark .icon { width: 35px; height: 35px; }
+.launch-kicker { margin: 25px 0 8px; color: #b0bac7; font-size: 14px; font-weight: 700; letter-spacing: 2px; }
+.launch-content h1 { margin: 0; color: #fff; font-size: clamp(38px, 7vw, 52px); font-weight: 800; letter-spacing: -2.5px; }
+.launch-content h1 span { color: #ff9268; }
+.launch-message { margin: 14px 0 0; color: #aab4c1; font-size: 14px; }
+.launch-progress { width: min(220px, 65vw); height: 4px; overflow: hidden; margin-top: 28px; border-radius: 4px; background: #ffffff20; }
+.launch-progress span { display: block; width: 100%; height: 100%; border-radius: inherit; background: linear-gradient(90deg, #f47745, #ffb08b); transform: scaleX(0); transform-origin: left; animation: launch-progress-fill 2.35s cubic-bezier(.22,.61,.36,1) forwards; }
+.launch-glow { position: absolute; width: min(50vw, 500px); aspect-ratio: 1; border-radius: 50%; filter: blur(90px); opacity: .13; pointer-events: none; }
+.launch-glow-one { top: -20%; left: -15%; background: #e66d43; }
+.launch-glow-two { right: -15%; bottom: -25%; background: #4267a0; }
+@keyframes launch-appear { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes launch-mark-pulse { 50% { box-shadow: 0 14px 55px #f4774560; transform: translateY(-3px); } }
+@keyframes launch-progress-fill { to { transform: scaleX(1); } }
+@media(prefers-reduced-motion: reduce) { .launch-content,.launch-mark,.launch-progress span { animation-duration: .01ms; animation-iteration-count: 1; } }
