@@ -1,6 +1,5 @@
 import { renderRoute } from "./routes/router.js";
 import { launchScreen } from "./components/launch-screen.js";
-import { saveWorkspaceRecord } from "./workspace/selection.js";
 import { closeMemberDialogOnEscape, handleMemberChange, handleMemberClick, handleMemberInput, handleMemberSubmit } from "./members/page-controller.js";
 import { closeTrainerDialogOnEscape, handleTrainerChange, handleTrainerClick, handleTrainerInput, handleTrainerSubmit } from "./trainers/page-controller.js";
 import { closePlanDialogOnEscape, handlePlanChange, handlePlanClick, handlePlanInput, handlePlanSubmit } from "./membership-plans/page-controller.js";
@@ -9,8 +8,6 @@ import { closePaymentDialogOnEscape, handlePaymentChange, handlePaymentClick, ha
 import { closeExpenseDialogOnEscape, handleExpenseChange, handleExpenseClick, handleExpenseInput, handleExpenseSubmit } from "./expenses/page-controller.js";
 import { closeInventoryDialogOnEscape, handleInventoryChange, handleInventoryClick, handleInventoryInput, handleInventorySubmit } from "./inventory/page-controller.js";
 import { closeEmployeeDialogOnEscape, handleEmployeeChange, handleEmployeeClick, handleEmployeeInput, handleEmployeeSubmit } from "./employees/page-controller.js";
-import { handleTrainerPortalClick, handleTrainerPortalInput } from "./trainer-portal/page-controller.js";
-import { closeMemberPortalDialogOnEscape, handleMemberPortalClick, handleMemberPortalSubmit } from "./member-portal/page-controller.js";
 
 const LAUNCH_DURATION_MS = 2400;
 document.querySelector("#app").innerHTML = launchScreen();
@@ -28,8 +25,6 @@ document.addEventListener("click", (event) => {
   handleExpenseClick(event);
   handleInventoryClick(event);
   handleEmployeeClick(event);
-  handleTrainerPortalClick(event);
-  handleMemberPortalClick(event);
   const control = event.target.closest("[data-action]");
   const action = control?.dataset.action;
   if (action === "open-menu") document.body.classList.add("menu-open");
@@ -47,7 +42,6 @@ document.addEventListener("keydown", (event) => {
   closeExpenseDialogOnEscape(event);
   closeInventoryDialogOnEscape(event);
   closeEmployeeDialogOnEscape(event);
-  closeMemberPortalDialogOnEscape(event);
 });
 
 document.addEventListener("input", (event) => {
@@ -59,19 +53,9 @@ document.addEventListener("input", (event) => {
   handleExpenseInput(event);
   handleInventoryInput(event);
   handleEmployeeInput(event);
-  handleTrainerPortalInput(event);
 });
 
 document.addEventListener("change", (event) => {
-  if (event.target.matches("#workspace-role-select")) {
-    window.location.hash = `#/${event.target.value}/dashboard`;
-    return;
-  }
-  if (event.target.matches("#workspace-record-select")) {
-    saveWorkspaceRecord(event.target.dataset.workspaceRole, event.target.value);
-    renderRoute();
-    return;
-  }
   handleMemberChange(event);
   handleTrainerChange(event);
   handlePlanChange(event);
@@ -91,5 +75,4 @@ document.addEventListener("submit", (event) => {
   handleExpenseSubmit(event);
   handleInventorySubmit(event);
   handleEmployeeSubmit(event);
-  handleMemberPortalSubmit(event);
 });

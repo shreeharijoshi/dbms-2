@@ -15,50 +15,28 @@ export const roles = {
       ["Reports", "reports", "chart"],
     ],
   },
-  trainer: {
-    label: "Trainer",
-    description: "Your coaching workspace",
-    links: [
-      ["Dashboard", "dashboard", "grid"],
-      ["My Members", "my-members", "users"],
-      ["My Profile", "my-profile", "user"],
-    ],
-  },
-  member: {
-    label: "Member",
-    description: "Your fitness, all in one place",
-    links: [
-      ["Dashboard", "dashboard", "grid"],
-      ["My Profile", "my-profile", "user"],
-      ["My Membership", "my-membership", "layers"],
-      ["My Payments", "my-payments", "credit-card"],
-      ["My Trainer", "my-trainer", "dumbbell"],
-    ],
-  },
 };
 
-export function routeFor(role, page) {
-  return `#/${role}/${page}`;
+export function routeFor(_role, page) {
+  return `#/admin/${page}`;
 }
 
 export function parseRoute(hash = window.location.hash) {
-  if (!hash || hash === "#") {
-    return { name: "app", role: "admin", page: "dashboard", memberId: null, trainerId: null, trainerMemberId: null, subscriptionMemberId: null, paymentMemberId: null, enrollMemberId: null };
-  }
   const parts = hash.replace(/^#\/?/, "").split("/").filter(Boolean);
-  const role = roles[parts[0]] ? parts[0] : "admin";
-  const page = parts[1] || "dashboard";
-  const item = roles[role].links.find((link) => link[1] === page);
-  const adminUtilityPage = role === "admin" && ["enroll-member", "expiring-memberships"].includes(page);
+  const isAdminRoute = parts[0] === "admin";
+  const requestedPage = isAdminRoute ? parts[1] || "dashboard" : "dashboard";
+  const item = roles.admin.links.find((link) => link[1] === requestedPage);
+  const adminUtilityPage = ["enroll-member", "expiring-memberships"].includes(requestedPage);
+  const page = item || adminUtilityPage ? requestedPage : "dashboard";
   return {
     name: "app",
-    role,
-    page: item || adminUtilityPage ? page : "dashboard",
-    memberId: role === "admin" && page === "members" ? parts[2] || null : null,
-    trainerId: role === "admin" && page === "trainers" ? parts[2] || null : null,
-    trainerMemberId: role === "trainer" && page === "my-members" ? parts[2] || null : null,
-    subscriptionMemberId: role === "admin" && page === "subscriptions" && parts[2] === "member" ? parts[3] || null : null,
-    paymentMemberId: role === "admin" && page === "payments" && parts[2] === "member" ? parts[3] || null : null,
-    enrollMemberId: role === "admin" && page === "enroll-member" ? parts[2] || null : null,
+    role: "admin",
+    page,
+    memberId: page === "members" ? parts[2] || null : null,
+    trainerId: page === "trainers" ? parts[2] || null : null,
+    trainerMemberId: null,
+    subscriptionMemberId: page === "subscriptions" && parts[2] === "member" ? parts[3] || null : null,
+    paymentMemberId: page === "payments" && parts[2] === "member" ? parts[3] || null : null,
+    enrollMemberId: page === "enroll-member" ? parts[2] || null : null,
   };
 }
