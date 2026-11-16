@@ -45,6 +45,6 @@ export function getMemberSubscriptions(memberId, filters = {}) {
 
 export const getSubscriptionOptions = () => request("/subscriptions/options");
 export const enrollMember = (data) => request("/subscriptions", { method: "POST", body: JSON.stringify(data) });
-export const renewSubscription = (id, planId) => request(`/subscriptions/${encodeURIComponent(id)}/renew`, { method: "POST", body: JSON.stringify({ plan_id: planId || null }) });
+export const renewSubscription = (id, data) => request(`/subscriptions/${encodeURIComponent(id)}/renew`, { method: "POST", body: JSON.stringify(data) });
 export const updateSubscriptionStatus = (id, membershipStatus) => request(`/subscriptions/${encodeURIComponent(id)}/status`, { method: "PATCH", body: JSON.stringify({ membership_status: membershipStatus }) });
 export const deleteSubscription = (id) => request(`/subscriptions/${encodeURIComponent(id)}`, { method: "DELETE" });

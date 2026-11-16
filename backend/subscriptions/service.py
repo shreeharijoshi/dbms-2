@@ -1,4 +1,3 @@
-import secrets
 from calendar import monthrange
 from datetime import date, timedelta
 
@@ -89,19 +88,6 @@ def _get_duration(db: Session, plan_id: str):
     return int(duration)
 
 
-def _new_membership_id(db: Session):
-    # The existing primary key is a manually assigned VARCHAR(20).
-    for _ in range(5):
-        membership_id = "MSH" + secrets.token_hex(8).upper()
-        exists = db.execute(
-            text("SELECT 1 FROM members_plans WHERE membership_id = :membership_id"),
-            {"membership_id": membership_id},
-        ).first()
-        if not exists:
-            return membership_id
-    raise HTTPException(status_code=503, detail="Could not allocate a membership ID")
-
-
 def _list_subscriptions(db: Session, *, search=None, status=None, member_id=None, expiring=False, skip=0, limit=100):
     conditions = []
     params = {}
@@ -157,7 +143,12 @@ def get_subscription(db: Session, membership_id: str):
 
 
 def enroll_member(db: Session, request: SubscriptionEnrollRequest):
-    if not request.member_id.strip() or not request.plan_id.strip():
+    membership_id = request.membership_id.strip()
+    member_id = request.member_id.strip()
+    plan_id = request.plan_id.strip()
+    if not membership_id:
+        raise HTTPException(status_code=422, detail="Subscription ID cannot be blank")
+    if not member_id or not plan_id:
         raise HTTPException(status_code=422, detail="Select both a member and a plan")
     try:
         with db.begin():
@@ -167,24 +158,22 @@ def enroll_member(db: Session, request: SubscriptionEnrollRequest):
                 raise HTTPException(status_code=422, detail="A new subscription cannot start in the past")
             member = db.execute(
                 text("SELECT member_id FROM members WHERE member_id = :member_id FOR UPDATE"),
-                {"member_id": request.member_id.strip()},
+                {"member_id": member_id},
             ).first()
             if not member:
                 raise HTTPException(status_code=404, detail="Member not found")
-            plan_id = request.plan_id.strip()
             duration = _get_duration(db, plan_id)
             end = _end_date(start, duration)
-            if _find_overlapping_active(db, request.member_id.strip(), start, end):
+            if _find_overlapping_active(db, member_id, start, end):
                 raise HTTPException(status_code=409, detail="This member already has an active subscription overlapping those dates")
-            membership_id = _new_membership_id(db)
             db.execute(
                 text("""
                     INSERT INTO members_plans (membership_id, member_id, plan_id, start_date, end_date, membership_status)
                     VALUES (:membership_id, :member_id, :plan_id, :start_date, :end_date, 'Active')
                 """),
-                {"membership_id": membership_id, "member_id": request.member_id.strip(), "plan_id": plan_id, "start_date": start, "end_date": end},
+                {"membership_id": membership_id, "member_id": member_id, "plan_id": plan_id, "start_date": start, "end_date": end},
             )
-            _sync_member_status(db, request.member_id.strip())
+            _sync_member_status(db, member_id)
         return get_subscription(db, membership_id)
     except IntegrityError:
         db.rollback()
@@ -192,6 +181,9 @@ def enroll_member(db: Session, request: SubscriptionEnrollRequest):
 
 
 def renew_subscription(db: Session, membership_id: str, request: SubscriptionRenewRequest):
+    new_id = request.membership_id.strip()
+    if not new_id:
+        raise HTTPException(status_code=422, detail="Subscription ID cannot be blank")
     try:
         with db.begin():
             today = db.execute(text("SELECT CURRENT_DATE")).scalar_one()
@@ -232,7 +224,6 @@ def renew_subscription(db: Session, membership_id: str, request: SubscriptionRen
             new_end = _end_date(start, duration)
             if _find_overlapping_active(db, member_id, start, new_end):
                 raise HTTPException(status_code=409, detail="Another active subscription overlaps the renewal dates")
-            new_id = _new_membership_id(db)
             db.execute(
                 text("""
                     INSERT INTO members_plans (membership_id, member_id, plan_id, start_date, end_date, membership_status)

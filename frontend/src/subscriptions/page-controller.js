@@ -161,7 +161,7 @@ export async function handleSubscriptionSubmit(event) {
       const subscription = await enrollMember(data);
       window.location.hash = `#/admin/subscriptions/member/${encodeURIComponent(subscription.member_id)}`;
     } else {
-      await renewSubscription(form.dataset.membershipId, new FormData(form).get("plan_id"));
+      await renewSubscription(form.dataset.membershipId, Object.fromEntries(new FormData(form).entries()));
       modalRoot().innerHTML = "";
       refreshSubscriptions();
     }
